@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from users import users_db
 
 router = APIRouter()
 
@@ -10,25 +11,29 @@ chat_db = {
 
 class Chat(BaseModel):
     text: str
-    user: str
+    username: str
     id: int
 
 
-@router.get("/chats")
+@router.get("/")
 def show_chats() -> dict:
     return chat_db
 
 
-@router.put("/chat/create")
+@router.post("/create")
 def create_chat(chat: Chat):
     if chat.id in chat_db:
           raise HTTPException(status_code=409, detail="chat id already exist you can not rewrite over a chat")
-    else:
-        chat_db[chat.id] = {"user": chat.user, "text": chat.text}
-        return {"user": chat.user, "text": chat.text, "text id": chat.id}
+    
+    if chat.username not in users_db:
+        raise HTTPException(status_code=204, detail=f"user with username of {chat.username} does not exist")
+    
+    
+    chat_db[chat.id] = {"username": chat.username, "text": chat.text}
+    return {"username": chat.username, "text": chat.text, "text id": chat.id}
     
 
-@router.delete("/chat/delete/{chat_id}")
+@router.delete("/delete/{chat_id}")
 def delete_chat(chat_id: int):
     if chat_id in chat_db:
         print("item was in the db")
