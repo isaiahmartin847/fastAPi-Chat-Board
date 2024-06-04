@@ -36,7 +36,6 @@ def create_chat(chat: Chat):
 @router.delete("/delete/{chat_id}")
 def delete_chat(chat_id: int):
     if chat_id in chat_db:
-        print("item was in the db")
         del chat_db[chat_id]
     else:
         raise HTTPException(status_code=204, detail=f"chat with id of {chat_id} unable to delete chat")

@@ -28,5 +28,9 @@ def create_user(user: Users) -> dict:
 
 
 @router.delete("/delete/{user_name}")
-async def delete_user(user_id: str) -> int:
-    return(user_id)
+def delete_user(user_name: str):
+    if user_name not in users_db:
+        raise HTTPException(status_code=204, detail=f"user {user_name} does not exist")
+    
+    del users_db[user_name]
+    return(user_name)
