@@ -6,10 +6,9 @@ router = APIRouter()
 class Users(BaseModel):
     name: str
     username: str
-    email: str
 
 users_db = {
-    "johnDoe": {"name": "John", "email" : "johndoe@example.com"}
+    "johnDoe": {"name": "John"}
 }
 
 
@@ -22,8 +21,8 @@ def create_user(user: Users) -> dict:
     if user.username in users_db:
         raise HTTPException(status_code=409, detail="User already exists")
     
-    users_db[user.username] = {"name": user.name, "email": user.email}
-    return {"Name": user.name, "email": user.email}
+    users_db[user.username] = {"name": user.name}
+    return {"Name": user.name, "username": user.username}
 
 
 
