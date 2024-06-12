@@ -5,7 +5,8 @@ from users import users_db
 router = APIRouter()
 
 chat_db = {
-    0 : {"text": "Hello world", "username" : "johnDoe"}
+    0 : {"text": "Hello world", "username" : "johnDoe"},
+
 }
 
 
