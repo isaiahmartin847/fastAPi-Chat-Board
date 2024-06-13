@@ -27,7 +27,7 @@ def create_chat(chat: Chat):
           raise HTTPException(status_code=409, detail="chat id already exist you can not rewrite over a chat")
     
     if chat.username not in users_db:
-        raise HTTPException(status_code=204, detail=f"user with username of {chat.username} does not exist")
+        raise HTTPException(status_code=409, detail=f"user with username of {chat.username} does not exist")
     
     
     chat_db[chat.id] = {"username": chat.username, "text": chat.text}
