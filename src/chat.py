@@ -1,19 +1,20 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from users import users_db
+from testDB import users_db, chat_db
+
 
 router = APIRouter()
 
-chat_db = {
-    0 : {"text": "Hello world", "username" : "johnDoe"},
+count = 0
 
-}
-
+def increment_count():
+    global count 
+    count += 1
 
 class Chat(BaseModel):
     text: str
     username: str
-    id: int
+    # id: int
 
 
 @router.get("/")
@@ -23,15 +24,17 @@ def show_chats() -> dict:
 
 @router.post("/create")
 def create_chat(chat: Chat):
-    if chat.id in chat_db:
-          raise HTTPException(status_code=409, detail="chat id already exist you can not rewrite over a chat")
+    # if chat.id in chat_db:
+    #       raise HTTPException(status_code=409, detail="chat id already exist you can not rewrite over a chat")
     
     if chat.username not in users_db:
         raise HTTPException(status_code=409, detail=f"user with username of {chat.username} does not exist")
     
-    
-    chat_db[chat.id] = {"username": chat.username, "text": chat.text}
-    return {"username": chat.username, "text": chat.text, "text id": chat.id}
+    increment_count()
+
+
+    chat_db[count] = {"username": chat.username, "text": chat.text}
+    return {"username": chat.username, "text": chat.text}
     
 
 @router.delete("/delete/{chat_id}")

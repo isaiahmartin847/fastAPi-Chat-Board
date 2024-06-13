@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from testDB import users_db, chat_db
 
 router = APIRouter()
 
@@ -7,9 +8,6 @@ class Users(BaseModel):
     name: str
     username: str
 
-users_db = {
-    "johnDoe": {"name": "John"}
-}
 
 
 @router.get("/")
@@ -22,7 +20,7 @@ def create_user(user: Users) -> dict:
         raise HTTPException(status_code=409, detail="User already exists")
     
     users_db[user.username] = {"name": user.name}
-    return {"Name": user.name, "username": user.username}
+    return {"Name": user.name}
 
 
 
