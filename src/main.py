@@ -4,6 +4,8 @@ from mysql.connector import connect, Error
 from pydantic import BaseModel
 from typing import List, Dict, Any
 from contextlib import contextmanager
+from models import get_all_users
+# from database import get_db_connection
 
 app = FastAPI()
 
@@ -12,22 +14,6 @@ class User(BaseModel):
     name: str
     password: str
 
-@contextmanager
-def get_db_connection():
-    try:
-        mydb = connect(
-            host='127.0.0.1',
-            port=3306,
-            user='root',
-            password='Developer1*',
-            database='Lagoon_test'
-        )
-        if mydb.is_connected():
-            yield mydb
-    except Error as e:
-        print(f"Error: {e}")
-    finally:
-        mydb.close()
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,19 +27,19 @@ app.add_middleware(
 def get_users():
 
 
-        query = "SELECT * FROM users WHERE id = 1"
-        result = create_query(query)
+
+        result = get_all_users()
         data = transform_query_output(result)
           
         return {"users": data}
 
-def create_query(query: str):
-    with get_db_connection() as mydb:
-        cursor = mydb.cursor()
-        cursor.execute(query)
-        result = cursor.fetchall()
-        cursor.close()
-        return result
+# def get_users(query: str):
+#     with get_db_connection() as mydb:
+#         cursor = mydb.cursor()
+#         cursor.execute("SELECT * FROM users")
+#         result = cursor.fetchall()
+#         cursor.close()
+#         return result
 
 def transform_query_output(query_output: List[tuple]) -> Dict[int, Dict[str, Any]]:
     users = {}
