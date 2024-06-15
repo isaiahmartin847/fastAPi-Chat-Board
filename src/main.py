@@ -39,13 +39,21 @@ app.add_middleware(
 
 @app.get("/db")
 def get_users():
+
+
+        query = "SELECT * FROM users WHERE id = 1"
+        result = create_query(query)
+        data = transform_query_output(result)
+          
+        return {"users": data}
+
+def create_query(query: str):
     with get_db_connection() as mydb:
         cursor = mydb.cursor()
-        cursor.execute("SELECT * FROM users")
+        cursor.execute(query)
         result = cursor.fetchall()
-        data = transform_query_output(result)
-        cursor.close()  # Make sure to close the cursor
-        return {"users": data}
+        cursor.close()
+        return result
 
 def transform_query_output(query_output: List[tuple]) -> Dict[int, Dict[str, Any]]:
     users = {}
@@ -54,11 +62,10 @@ def transform_query_output(query_output: List[tuple]) -> Dict[int, Dict[str, Any
         users[user_id] = {"username": username, "name": name, "password": password}
     return users
 
-# Include other routers
 from chat import router as chat_router
 from users import router as user_router
 
 app.include_router(chat_router, prefix="/chat")
 app.include_router(user_router, prefix="/user")
 
-# Run the app using `uvicorn filename:app --reload` to see the output
+
