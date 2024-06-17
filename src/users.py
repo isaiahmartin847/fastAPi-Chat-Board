@@ -1,33 +1,53 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from testDB import users_db, chat_db
+# from testDB import users_db, chat_db
+from database import get_db_connection
 
 router = APIRouter()
 
-class Users(BaseModel):
-    name: str
+class UserBase(BaseModel):
     username: str
+    name: str
+    password: str
 
 
 
-@router.get("/")
-def show_users() -> dict:
-    return users_db
-
-@router.post("/create")
-def create_user(user: Users) -> dict:
-    if user.username in users_db:
-        raise HTTPException(status_code=409, detail="User already exists")
-    
-    users_db[user.username] = {"name": user.name}
-    return {"Name": user.name}
+@router.get("/users")
+def get_users():
+    with get_db_connection() as mydb:
+        cursor = mydb.cursor()
+        cursor.execute("SELECT * FROM users")
+        result = cursor.fetchall()
+        data = transform_query_output(result)
+    return {"users": data}
 
 
 
-@router.delete("/delete/{user_name}")
-def delete_user(user_name: str):
-    if user_name not in users_db:
-        raise HTTPException(status_code=204, detail=f"user {user_name} does not exist")
-    
-    del users_db[user_name]
-    return(user_name)
+@router.post("/user/create")
+def create_user(user: UserBase): 
+    with get_db_connection() as mydb:
+        cursor = mydb.cursor()
+        sql = "INSERT INTO users (username, name, password) VALUES (%s, %s, %s)"
+        val = (user.username, user.name, user.password)
+        cursor.execute(sql, val)
+        mydb.commit()
+    return {"message": "user created in the db"}
+
+
+
+@router.delete("/user/delete/{id}")
+def delete_user(id: int):
+    with get_db_connection() as mydb:
+        cursor = mydb.cursor()
+        cursor.execute(f"DELETE FROM users WHERE id = {id}")
+        mydb.commit()
+
+    return {"message": f"deleted the user {id}"}
+
+
+def transform_query_output(query_output: List[tuple]) -> Dict[int, Dict[str, Any]]:
+    users = {}
+    for user in query_output:
+        user_id, username, name, password = user
+        users[user_id] = {"username": username, "name": name, "password": password}
+    return users
