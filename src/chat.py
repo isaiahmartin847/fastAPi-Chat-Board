@@ -1,47 +1,60 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from testDB import users_db, chat_db
+from database import get_db_connection
+from typing import List, Dict, Any
+# from testDB import users_db, chat_db
 
 
 router = APIRouter()
 
-count = 0
 
-def increment_count():
-    global count 
-    count += 1
-
-class Chat(BaseModel):
+class ChatBase(BaseModel):
     text: str
-    username: str
+    user: int
+
+
+def convert_to_dict_list(data):
+    result = []
+    for item in data:
+        user_message_dict = {
+            "user": item[0],
+            "message": item[1]
+        }
+        result.append(user_message_dict)
+    return result
 
 
 @router.get("/")
-def show_chats() -> dict:
-    return chat_db
+def get_users():
+    with get_db_connection() as mydb:
+        cursor = mydb.cursor()
+        cursor.execute("SELECT users.username, messages.text FROM messages JOIN users ON messages.user_id = users.id")
+        result = cursor.fetchall()
+        data = convert_to_dict_list(result)
+    return {"messages": data}
 
 
 @router.post("/create")
-def create_chat(chat: Chat):
-    
-    if chat.username not in users_db:
-        raise HTTPException(status_code=409, detail=f"user with username of {chat.username} does not exist")
-    
-    increment_count()
+def create_chat(chat: ChatBase):
+    with get_db_connection() as mydb:
+        cursor = mydb.cursor()
+        sql = "INSERT INTO messages (text, user_id) VALUES (%s, %s)"
+        val = (chat.text, chat.user)
+        cursor.execute(sql, val)
+        mydb.commit()
+    return {"message": "message created"}
 
 
-    chat_db[count] = {"username": chat.username, "text": chat.text}
-    return {"username": chat.username, "text": chat.text}
     
 
 @router.delete("/delete/{chat_id}")
 def delete_chat(chat_id: int):
-    if chat_id in chat_db:
-        del chat_db[chat_id]
-    else:
-        raise HTTPException(status_code=204, detail=f"chat with id of {chat_id} unable to delete chat")
+    with get_db_connection() as mydb:
+        cursor = mydb.cursor()
+        cursor.execute(f"DELETE FROM messages WHERE message_id = {chat_id}")
+        mydb.commit()
 
-    return {"id": chat_id}
+    return {"message": f"deleted the message {chat_id}"}
 
 
 

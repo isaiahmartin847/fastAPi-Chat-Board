@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-# from testDB import users_db, chat_db
 from database import get_db_connection
+from typing import List, Dict, Any
 
 router = APIRouter()
 
@@ -12,7 +12,7 @@ class UserBase(BaseModel):
 
 
 
-@router.get("/users")
+@router.get("/")
 def get_users():
     with get_db_connection() as mydb:
         cursor = mydb.cursor()
@@ -23,7 +23,7 @@ def get_users():
 
 
 
-@router.post("/user/create")
+@router.post("/create")
 def create_user(user: UserBase): 
     with get_db_connection() as mydb:
         cursor = mydb.cursor()
@@ -35,7 +35,7 @@ def create_user(user: UserBase):
 
 
 
-@router.delete("/user/delete/{id}")
+@router.delete("/delete/{id}")
 def delete_user(id: int):
     with get_db_connection() as mydb:
         cursor = mydb.cursor()
