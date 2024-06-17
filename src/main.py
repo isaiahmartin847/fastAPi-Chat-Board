@@ -3,9 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from mysql.connector import connect, Error
 from pydantic import BaseModel
 from typing import List, Dict, Any
-from contextlib import contextmanager
-from models import get_all_users
-# from database import get_db_connection
+import mysql.connector
+
 
 app = FastAPI()
 
@@ -15,31 +14,26 @@ class User(BaseModel):
     password: str
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Update this to allow specific origins instead of all
-    allow_credentials=True,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
-)
 
-@app.get("/db")
+def get_db_connection():
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="developer",
+        password="Developer1*",
+        database="Lagoon_test"
+    )
+    return mydb
+
+
+
+@app.get("/users")
 def get_users():
-
-
-
-        result = get_all_users()
+    with get_db_connection() as mydb:
+        cursor = mydb.cursor()
+        cursor.execute("SELECT * FROM users")
+        result = cursor.fetchall()
         data = transform_query_output(result)
-          
-        return {"users": data}
-
-# def get_users(query: str):
-#     with get_db_connection() as mydb:
-#         cursor = mydb.cursor()
-#         cursor.execute("SELECT * FROM users")
-#         result = cursor.fetchall()
-#         cursor.close()
-#         return result
+    return {"users": data}
 
 def transform_query_output(query_output: List[tuple]) -> Dict[int, Dict[str, Any]]:
     users = {}
@@ -47,6 +41,8 @@ def transform_query_output(query_output: List[tuple]) -> Dict[int, Dict[str, Any
         user_id, username, name, password = user
         users[user_id] = {"username": username, "name": name, "password": password}
     return users
+
+
 
 from chat import router as chat_router
 from users import router as user_router
