@@ -17,7 +17,7 @@ def convert_to_dict_list(data):
     result = []
     for item in data:
         user_message_dict = {
-            "user": item[0],
+            "user": item[2],
             "message": item[1]
         }
         result.append(user_message_dict)
@@ -26,9 +26,15 @@ def convert_to_dict_list(data):
 
 @router.get("/")
 def get_users():
+    query = """
+SELECT messages.message_id, messages.text, users.username
+FROM messages
+JOIN users ON messages.user_id = users.id
+ORDER BY messages.message_id
+    """
     with get_db_connection() as mydb:
         cursor = mydb.cursor()
-        cursor.execute("SELECT users.username, messages.text FROM messages JOIN users ON messages.user_id = users.id")
+        cursor.execute(query)
         result = cursor.fetchall()
         data = convert_to_dict_list(result)
     return {"messages": data}
