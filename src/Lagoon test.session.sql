@@ -13,8 +13,16 @@
 -- ); 
 
 --@BLOCk
+SHOW TABLES;
+
+--@BLOCK
+ INSERT INTO users (username, name, password)
+ VALUES ("admin", "isaiah", "fake_password");
+
+
+--@BLOCk
  INSERT INTO messages (text, user_id)
- VALUES ('jodies message', 2);
+ VALUES ('first message', 23);
 
 
 --@block
@@ -34,7 +42,25 @@ JOIN users ON messages.user_id = users.id;
 
 
 --@block 
-SELECT messages.text, users.name
+SELECT messages.message_id, messages.text, users.username
 FROM messages
 JOIN users ON messages.user_id = users.id
 ORDER BY messages.message_id;
+
+
+--@block 
+TRUNCATE TABLE messages
+
+
+--@block
+TRUNCATE TABLE users
+
+
+--@block
+DELETE FROM users;
+
+
+--@block 
+SELECT users.password
+FROM users 
+Where username = "admin"

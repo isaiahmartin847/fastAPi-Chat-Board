@@ -18,7 +18,8 @@ def convert_to_dict_list(data):
     for item in data:
         user_message_dict = {
             "user": item[2],
-            "message": item[1]
+            "message": item[1],
+            "id": item[0]
         }
         result.append(user_message_dict)
     return result

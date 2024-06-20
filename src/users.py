@@ -31,7 +31,10 @@ def create_user(user: UserBase):
         val = (user.username, user.name, user.password)
         cursor.execute(sql, val)
         mydb.commit()
-    return {"message": "user created in the db"}
+
+        user_id = cursor.lastrowid
+
+    return {"user_id": user_id}
 
 
 
@@ -45,9 +48,29 @@ def delete_user(id: int):
     return {"message": f"deleted the user {id}"}
 
 
+
+@router.get("/{username}")
+def get_user(username: str):
+     
+    with get_db_connection() as mydb:
+
+        cursor = mydb.cursor()
+        cursor.execute(f"SELECT users.password FROM users Where username = '{username}'")
+        result = cursor.fetchall()
+    
+    if len(result) == 0: 
+        raise HTTPException(status_code=404, detail="User not found")
+    else :
+        return {"password": result}
+    
+    
+
+
 def transform_query_output(query_output: List[tuple]) -> Dict[int, Dict[str, Any]]:
     users = {}
     for user in query_output:
         user_id, username, name, password = user
         users[user_id] = {"username": username, "name": name, "password": password}
     return users
+
+
