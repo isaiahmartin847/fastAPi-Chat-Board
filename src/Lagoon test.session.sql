@@ -61,6 +61,6 @@ DELETE FROM users;
 
 
 --@block 
-SELECT users.password
+SELECT users.password, user.id
 FROM users 
 Where username = "admin"

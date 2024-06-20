@@ -55,13 +55,14 @@ def get_user(username: str):
     with get_db_connection() as mydb:
 
         cursor = mydb.cursor()
-        cursor.execute(f"SELECT users.password FROM users Where username = '{username}'")
+        cursor.execute(f"SELECT users.password, users.id FROM users Where username = '{username}'")
         result = cursor.fetchall()
     
     if len(result) == 0: 
         raise HTTPException(status_code=404, detail="User not found")
     else :
-        return {"password": result}
+        # print(result)
+        return {"password": result[0][0], "id": result[0][1]}
     
     
 

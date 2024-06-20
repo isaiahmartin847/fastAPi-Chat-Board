@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -28,3 +29,5 @@ app.include_router(chat_router, prefix="/chat")
 app.include_router(user_router, prefix="/user")
 
 
+# if __name__ == "__main__":
+#     uvicorn.run(app, host="127.0.0.1", port=8080)
