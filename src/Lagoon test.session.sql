@@ -4,16 +4,20 @@
 -- SELECT * FROM users
 
 
-
--- CREATE TABLE messages (
---     message_id INT PRIMARY KEY AUTO_INCREMENT,
---     text TEXT, 
---     user_id INT,
---     FOREIGN KEY (user_id) REFERENCES users(id)
--- ); 
+--@BLOCK 
+CREATE TABLE messages (
+    message_id INT PRIMARY KEY AUTO_INCREMENT,
+    text TEXT, 
+    author VARCHAR(100),
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+); 
 
 --@BLOCk
 SHOW TABLES;
+
+--@BLOCK   
+    DROP TABLE  messages
 
 --@BLOCK
  INSERT INTO users (username, name, password)
